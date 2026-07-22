@@ -1,0 +1,39 @@
+services:
+  backend:
+    build: ./backend
+    container_name: fitness-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - fitness-data:/data
+    environment:
+      APP_USER: ${APP_USER}
+      APP_PASSWORD: ${APP_PASSWORD}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      DB_PATH: /data/fitness.db
+
+  n8n:
+    image: n8nio/n8n
+    container_name: fitness-n8n
+    restart: unless-stopped
+    ports:
+      - "5681:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    environment:
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_SECURE_COOKIE: "false"
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-UTC}
+      TZ: ${TZ:-UTC}
+      APP_USER: ${APP_USER}
+      APP_PASSWORD: ${APP_PASSWORD}
+      APP_URL: http://backend:8000
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+
+volumes:
+  fitness-data:
+  n8n-data:
